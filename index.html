@@ -261,9 +261,8 @@ function renderPack(){
     </g>`;
   }
   const ts = TSHORT[t.code]||t.name;
-  const center = `<circle cx="${cx}" cy="${cy}" r="${Rt}" fill="#0F6E56"><title>${esc(t.name)} (${esc(t.code)})</title></circle>
-    <text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">${esc(ts)}</text>
-    <text x="${cx}" y="${cy+14}" text-anchor="middle" font-size="10" fill="#fff" fill-opacity="0.85">${esc(t.code)}</text>`;
+  const center = `<circle cx="${cx}" cy="${cy}" r="${Rt}" fill="#0F6E56"><title>${esc(t.name)}</title></circle>
+    <text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">${esc(ts)}</text>`;
 
   document.getElementById('packcard').innerHTML = `
     <div class="pkhead">Feeder cluster — the closer a bubble sits to <b>${esc(t.name)}</b>, the smaller its training gap. ${t.feeders.length} feeders.</div>
@@ -359,7 +358,7 @@ document.getElementById('aboutBody').innerHTML = `
     <div><span class="term">X of Y competencies transfer</span> — how many of the target's important attributes the feeder already brings in.</div>
     <div><span class="term">Feeder cluster</span> — each feeder is a bubble; the closer it sits to the target at the center, the smaller its training gap.</div>
   </div>
-  <p class="foottip">Tip: use the dropdowns to change the feeder or target occupation, click a bubble to load that feeder, and hover any chip or bubble for its full O*NET name and details.</p>`;
+  <p class="foottip">Tip: use the dropdowns to change the feeder or target occupation, click a bubble to load that feeder, and hover any colored label or bubble for its full O*NET name and details.</p>`;
 
 document.getElementById('foot').innerHTML = `
   <p class="footcredit">
