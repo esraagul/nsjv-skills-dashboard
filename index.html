@@ -155,12 +155,51 @@ const CODES = {
  "Welders, Cutters, Solderers, and Brazers":"51-4121","Woodworking Machine Setters, Operators, and Tenders, Except Sawing":"51-7042"
 };
 const TSHORT = {"47-2111":"Electricians","47-2073":"Op. Engineers","49-9041":"Ind. Machinery","49-9021":"HVAC / Refrig."};
+// shortened-but-recognizable feeder names for the bubble labels (full name still shown on hover)
+const SHORT = {
+ "Chemical Equipment Operators and Tenders":"Chemical Equip. Operators","Chemical Technicians":"Chemical Technicians",
+ "Coating, Painting, and Spraying Machine Setters, Operators, and Tenders":"Coating & Painting Operators",
+ "Computer Numerically Controlled Tool Operators":"CNC Tool Operators","Computer Numerically Controlled Tool Programmers":"CNC Tool Programmers",
+ "Construction Laborers":"Construction Laborers",
+ "Cutting, Punching, and Press Machine Setters, Operators, and Tenders, Metal and Plastic":"Cutting & Press Operators",
+ "Electricians":"Electricians","Environmental Engineering Technologists and Technicians":"Environ. Eng. Techs",
+ "Farm Equipment Mechanics and Service Technicians":"Farm Equip. Mechanics","First-Line Supervisors of Production and Operating Workers":"Production Supervisors",
+ "Hazardous Materials Removal Workers":"Hazmat Removal Workers","Heating, Air Conditioning, and Refrigeration Mechanics and Installers":"HVAC / Refrig. Mechanics",
+ "Heavy and Tractor-Trailer Truck Drivers":"Heavy Truck Drivers","Industrial Machinery Mechanics":"Industrial Machinery Mechanics",
+ "Industrial Truck and Tractor Operators":"Industrial Truck Operators","Inspectors, Testers, Sorters, Samplers, and Weighers":"Inspectors & Testers",
+ "Laborers and Freight, Stock, and Material Movers, Hand":"Freight & Material Movers","Machinists":"Machinists",
+ "Maintenance and Repair Workers, General":"Maintenance & Repair Workers","Mixing and Blending Machine Setters, Operators, and Tenders":"Mixing & Blending Operators",
+ "Petroleum Pump System Operators, Refinery Operators, and Gaugers":"Petroleum Pump Operators","Plumbers, Pipefitters, and Steamfitters":"Plumbers & Pipefitters",
+ "Refuse and Recyclable Material Collectors":"Refuse & Recycling Collectors","Riggers":"Riggers",
+ "Separating, Filtering, Clarifying, Precipitating, and Still Machine Setters, Operators, and Tenders":"Separating & Filtering Operators",
+ "Septic Tank Servicers and Sewer Pipe Cleaners":"Septic & Sewer Cleaners","Sheet Metal Workers":"Sheet Metal Workers",
+ "Solar Photovoltaic Installers":"Solar PV Installers","Water and Wastewater Treatment Plant and System Operators":"Water Treatment Operators",
+ "Welders, Cutters, Solderers, and Brazers":"Welders & Cutters","Woodworking Machine Setters, Operators, and Tenders, Except Sawing":"Woodworking Operators"
+};
+// greedy word-wrap into at most maxLines lines of ~maxChars; remainder ellipsized onto the last line
+function wrapLabel(str, maxChars, maxLines){
+  const words=String(str).split(/\s+/), lines=[]; let cur='';
+  for(let i=0;i<words.length;i++){
+    const w=words[i], test = cur ? cur+' '+w : w;
+    if(test.length<=maxChars || !cur){ cur=test; }
+    else {
+      lines.push(cur); cur=w;
+      if(lines.length===maxLines-1){
+        let rest=words.slice(i).join(' ');
+        if(rest.length>maxChars) rest=rest.slice(0,maxChars-1)+'…';
+        lines.push(rest); return lines;
+      }
+    }
+  }
+  if(cur) lines.push(cur);
+  return lines;
+}
 // green (best fit) -> red (most to learn), banded by share of the target's competencies still to learn
 function packCol(frac){ return frac<=0.10?'#1D9E75' : frac<=0.35?'#EF9F27' : frac<=0.60?'#D85A30' : '#E24B4A'; }
 
 function renderPack(){
   const t = DATA.targets[ti];
-  const W=680,H=560,cx=340,cy=272,Rt=42,Rb=21,Rin=66,Rout=212,pad=3;
+  const W=860,H=690,cx=430,cy=340,Rt=52,Rb=28,Rin=92,Rout=300,pad=4;
   const maxGap = Math.max(1, ...t.feeders.map(f=>f.gap));
   const nodes = t.feeders.map((f,idx)=>{
     const tr = Rin + (f.gap/maxGap)*(Rout-Rin);      // target radius by gap
@@ -190,13 +229,17 @@ function renderPack(){
   for(const q of [0.25,0.5,0.75,1]){ const r=(Rin+q*(Rout-Rin)).toFixed(1);
     rings+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d7dde3" stroke-width="1" stroke-dasharray="2 5"/>`; }
   let bub='';
+  const FS=8.0, LH=8.4, MAXCH=12;
   for(const n of nodes){
     const sel = n.idx===fi, c = packCol(n.gap/t.total);
+    const lines = wrapLabel(SHORT[n.name]||n.name, MAXCH, 3);
+    const y0 = n.y - (lines.length-1)*LH/2 + 3;
+    const label = lines.map((ln,i)=>`<tspan x="${n.x.toFixed(1)}" dy="${i===0?0:LH}">${esc(ln)}</tspan>`).join('');
     bub+=`<g class="pk" onclick="onFeeder(${n.idx})">
       <circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${Rb}" fill="${c}" fill-opacity="${sel?1:0.9}"
         stroke="${sel?'#20272c':'#ffffff'}" stroke-width="${sel?3:1.5}">
         <title>${esc(n.name)}${n.code?' ('+n.code+')':''} — gap ${n.gap}, ${t.total-n.gap} of ${t.total} transfer</title></circle>
-      <text x="${n.x.toFixed(1)}" y="${(n.y+3.5).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="#fff" pointer-events="none">${esc(n.code||('#'+(n.idx+1)))}</text>
+      <text x="${n.x.toFixed(1)}" y="${y0.toFixed(1)}" text-anchor="middle" font-size="${FS}" font-weight="600" fill="#fff" pointer-events="none">${label}</text>
     </g>`;
   }
   const ts = TSHORT[t.code]||t.name;
@@ -212,7 +255,7 @@ function renderPack(){
       <span class="lg"><i style="background:#EF9F27"></i></span>
       <span class="lg"><i style="background:#D85A30"></i></span>
       <span class="lg"><i style="background:#E24B4A"></i></span>
-      <span>more to learn &nbsp;·&nbsp; label = SOC code &nbsp;·&nbsp; click a bubble to load it above &nbsp;·&nbsp; hover for full name</span>
+      <span>more to learn &nbsp;·&nbsp; click a bubble to load it above &nbsp;·&nbsp; hover for full name &amp; SOC code</span>
     </div>
     <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Feeder occupation cluster for ${esc(t.name)}">
       ${rings}${bub}${center}
