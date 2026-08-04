@@ -349,9 +349,8 @@ function onTarget(v){ ti=+v; fi=feederOrder(DATA.targets[ti])[0].idx; render(); 
 function onFeeder(v){ fi=+v; render(); }
 
 document.getElementById('aboutBody').innerHTML = `
-  <p class="footlead">For each of the four target occupations and a selected feeder occupation, this dashboard shows the O*NET Knowledge and Skills a worker already brings in, the ones they would still need to learn, and the structural barriers to entering the occupation. The bubble cluster groups every feeder occupation by how small its training gap is.</p>
+  <p class="footlead">For each of the four target occupations and a selected feeder occupation, this dashboard shows the O*NET Knowledge and Skills a worker already brings in, the ones they would still need to learn, and the structural barriers to entering the occupation. The bubble cluster groups every feeder occupation by how small its training gap is. Only attributes O*NET rates as important to an occupation — an Importance rating above 3 on the 1–5 scale — are counted.</p>
   <div class="footdefs">
-    <div><span class="term">Important</span> — an O*NET Knowledge or Skill attribute rated above 3 on its 1–5 Importance scale for an occupation.</div>
     <div><span class="term">Brings in (asset)</span> — important for both the feeder and the target: transferable strengths the worker already has.</div>
     <div><span class="term">Must learn (teachable gap)</span> — important for the target but not the feeder: the training gap a program can close.</div>
     <div><span class="term">Barriers to entry</span> — structural requirements such as apprenticeship, license, or preparation level that a course cannot teach.</div>
