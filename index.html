@@ -84,7 +84,7 @@
 </head>
 <body>
 <div class="shell">
-  <p class="lead">Skills transition into the four North San Joaquin Valley target trades — pick a target and a feeder occupation from the dropdowns.</p>
+  <p class="lead">Skills transitions into four target occupations in the North San Joaquin Valley — pick a target and a feeder occupation from the dropdowns to see what transfers, what must be learned, and the barriers to entry.</p>
   <main class="card" id="card"></main>
   <main class="card" id="packcard"></main>
   <div class="foot" id="foot"></div>
@@ -301,7 +301,7 @@ function render(){
       <div class="titleline">
         <select class="hsel feeder" id="fsel" onchange="onFeeder(this.value)" title="Change feeder occupation">${feederOpts}</select>
         <span class="arrow">&rarr;</span>
-        <select class="hsel target" id="tsel" onchange="onTarget(this.value)" title="Change target trade">${targetOpts}</select>
+        <select class="hsel target" id="tsel" onchange="onTarget(this.value)" title="Change target occupation">${targetOpts}</select>
       </div>
       <div class="transfer"><b>${has} of ${t.total}</b> competencies transfer</div>
     </div>
@@ -317,7 +317,7 @@ function render(){
     <div class="barhead">barriers to entry (not teachable in a course)</div>
     ${barriers.length
       ? `<div class="barriers">`+barriers.map(x=>`<div class="barrier" title="${esc(e[x.src])}">${esc(x.l)}</div>`).join('')+`</div>`
-      : `<div class="nobar">No hard barriers to entry for this trade.</div>`}
+      : `<div class="nobar">No hard barriers to entry for this occupation.</div>`}
     ${notes.length
       ? `<div class="notes"><span class="noteslbl">not a barrier</span>`+notes.map(x=>`<span class="note" title="${esc(e[x.src])}">${esc(x.l)}</span>`).join('')+`</div>`
       : ``}`;
@@ -342,7 +342,7 @@ function onFeeder(v){ fi=+v; render(); }
 
 document.getElementById('foot').innerHTML = `
   <div class="foottitle">About this dashboard</div>
-  <p class="footlead">For each of the four target trades and a selected feeder occupation, this dashboard shows the O*NET Knowledge and Skills a worker already brings in, the ones they would still need to learn, and the structural barriers to entering the trade. The bubble cluster groups every feeder occupation by how small its training gap is.</p>
+  <p class="footlead">For each of the four target occupations and a selected feeder occupation, this dashboard shows the O*NET Knowledge and Skills a worker already brings in, the ones they would still need to learn, and the structural barriers to entering the occupation. The bubble cluster groups every feeder occupation by how small its training gap is.</p>
   <div class="footdefs">
     <div><span class="term">Important</span> — an O*NET Knowledge or Skill attribute rated above 3 on its 1–5 Importance scale for an occupation.</div>
     <div><span class="term">Brings in (asset)</span> — important for both the feeder and the target: transferable strengths the worker already has.</div>
@@ -351,7 +351,7 @@ document.getElementById('foot').innerHTML = `
     <div><span class="term">X of Y competencies transfer</span> — how many of the target's important attributes the feeder already brings in.</div>
     <div><span class="term">Feeder cluster</span> — each feeder is a bubble; the closer it sits to the target at the center, the smaller its training gap.</div>
   </div>
-  <p class="foottip">Tip: use the dropdowns to change the feeder or target trade, click a bubble to load that feeder, and hover any chip or bubble for its full O*NET name and details.</p>
+  <p class="foottip">Tip: use the dropdowns to change the feeder or target occupation, click a bubble to load that feeder, and hover any chip or bubble for its full O*NET name and details.</p>
   <p class="footcredit">
     Prepared by the <b>Center for Business and Policy Research, University of the Pacific</b>. Created by Esra Gul.<br>
     Data: O*NET 30.3 (Knowledge, essential and transferable Skills); entry requirements from the U.S. Bureau of Labor Statistics Occupational Outlook Handbook and O*NET. Generated ${esc(DATA.generated)}.
