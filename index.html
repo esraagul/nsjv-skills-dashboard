@@ -283,7 +283,7 @@ function render(){
   const learn = clean(f.kBuild).concat(clean(f.sBuild));
 
   const feederOpts = feederOrder(t).map(({f:ff,idx})=>
-     `<option value="${idx}" ${idx===fi?'selected':''}>${esc(ff.name)}${CODES[ff.name]?' ['+CODES[ff.name]+']':''}  (${alreadyOf(ff)}/${t.total})</option>`).join('');
+     `<option value="${idx}" ${idx===fi?'selected':''}>${esc(ff.name)}  (${alreadyOf(ff)}/${t.total})</option>`).join('');
   const targetOpts = DATA.targets.map((tt,i)=>
      `<option value="${i}" ${i===ti?'selected':''}>${esc(tt.name)}</option>`).join('');
 
