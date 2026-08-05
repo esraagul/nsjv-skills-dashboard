@@ -81,6 +81,7 @@
   .footcredit b{color:var(--ink)}
 
   #packcard{margin-top:18px}
+  .pktitle{font-size:18px;font-weight:700;color:var(--ink);margin:0 0 3px}
   .pkhead{font-size:14px;color:var(--muted);margin:0 0 10px}
   .pkhead b{color:var(--ink)}
   .pklegend{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:12px;color:var(--muted);margin-bottom:4px}
@@ -265,7 +266,8 @@ function renderPack(){
     <text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">${esc(ts)}</text>`;
 
   document.getElementById('packcard').innerHTML = `
-    <div class="pkhead">Feeder cluster — the closer a bubble sits to <b>${esc(t.name)}</b>, the smaller its training gap. ${t.feeders.length} feeders.</div>
+    <div class="pktitle">Feeder cluster</div>
+    <div class="pkhead">The closer a bubble sits to <b>${esc(t.name)}</b>, the smaller its training gap. ${t.feeders.length} feeders.</div>
     <div class="pklegend">
       <span>best fit</span>
       <span class="lg"><i style="background:#1D9E75"></i></span>
