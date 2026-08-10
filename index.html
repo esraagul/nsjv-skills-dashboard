@@ -188,7 +188,7 @@ const CODES = {
 };
 const TSHORT = {"47-2111":"Electricians","47-2073":"Op. Engineers","49-9041":"Ind. Machinery","49-9021":"HVAC / Refrig."};
 
-// NSJV regional employment — BLS OEWS May 2024, Stockton-Lodi + Modesto + Merced metros
+// NSJV regional employment — BLS OEWS May 2025 release, Stockton-Lodi + Modesto + Merced metros
 // (San Joaquin, Stanislaus, Merced counties). null = size not published by BLS.
 // Four occupations BLS does not publish are filled from Lightcast 2025:
 // Riggers (45), Petroleum Pump Operators (53), Hazmat Removal Workers (147), Environmental Eng. Techs (19).
@@ -232,6 +232,9 @@ const EMP = {
 };
 const fmtN = n => n==null ? null : n.toLocaleString('en-US');
 const empN = name => EMP[name]; // number or null/undefined
+// the four occupations BLS does not publish are sourced from Lightcast 2025
+const LIGHTCAST = new Set(["Riggers","Petroleum Pump System Operators, Refinery Operators, and Gaugers","Hazardous Materials Removal Workers","Environmental Engineering Technologists and Technicians"]);
+const empSrc = name => LIGHTCAST.has(name) ? "Lightcast 2025" : "BLS OEWS May 2025 release";
 // shortened-but-recognizable feeder names for the bubble labels (full name still shown on hover)
 const SHORT = {
  "Chemical Equipment Operators and Tenders":"Chemical Equip. Operators","Chemical Technicians":"Chemical Technicians",
@@ -385,10 +388,10 @@ function render(){
       <div class="workforce">
         ${empN(f.name)==null
           ? `<span class="wfpill wf-np" title="BLS does not publish a regional employment count for this occupation"><span class="lbl">Feeder workforce not published</span></span>`
-          : `<span class="wfpill wf-f" title="${esc(f.name)} — NSJV three-county employment, BLS OEWS May 2024"><span class="n">${fmtN(empN(f.name))}</span><span class="lbl">workers in this feeder</span></span>`}
+          : `<span class="wfpill wf-f" title="${esc(f.name)} — NSJV three-county employment, ${empSrc(f.name)}"><span class="n">${fmtN(empN(f.name))}</span><span class="lbl">workers in this feeder</span></span>`}
         <span class="arrow" style="font-size:16px">&rarr;</span>
-        <span class="wfpill wf-t" title="${esc(t.name)} — NSJV three-county employment, BLS OEWS May 2024"><span class="n">${fmtN(empN(t.name))}</span><span class="lbl">workers in the target role</span></span>
-        <span class="wfnote">NSJV three-county region, 2024</span>
+        <span class="wfpill wf-t" title="${esc(t.name)} — NSJV three-county employment, ${empSrc(t.name)}"><span class="n">${fmtN(empN(t.name))}</span><span class="lbl">workers in the target role</span></span>
+        <span class="wfnote">NSJV three-county region · BLS OEWS May 2025 release</span>
       </div>
     </div>
 
@@ -439,7 +442,7 @@ document.getElementById('aboutBody').innerHTML = `
 
 document.getElementById('foot').innerHTML = `
   <p class="footcredit">
-    Data: O*NET 30.3 (Knowledge, essential and transferable Skills); entry requirements from the U.S. Bureau of Labor Statistics Occupational Outlook Handbook and O*NET. Updated on 2026-08-04.<br>
+    Data: O*NET 30.3 (Knowledge, essential and transferable Skills); entry requirements from the U.S. Bureau of Labor Statistics Occupational Outlook Handbook and O*NET; employment from BLS OEWS May 2025 release (NSJV three-county region), except Riggers, Petroleum Pump System Operators, Hazardous Materials Removal Workers, and Environmental Engineering Technologists and Technicians, which are from Lightcast 2025. Updated on 2026-08-04.<br>
     Prepared by Esra Gul, Center for Business and Policy Research at the University of the Pacific.
   </p>`;
 
