@@ -190,6 +190,8 @@ const TSHORT = {"47-2111":"Electricians","47-2073":"Op. Engineers","49-9041":"In
 
 // NSJV regional employment — BLS OEWS May 2024, Stockton-Lodi + Modesto + Merced metros
 // (San Joaquin, Stanislaus, Merced counties). null = size not published by BLS.
+// Four occupations BLS does not publish are filled from Lightcast 2025:
+// Riggers (45), Petroleum Pump Operators (53), Hazmat Removal Workers (147), Environmental Eng. Techs (19).
 const EMP = {
  // target occupations
  "Electricians":2070,
@@ -199,11 +201,11 @@ const EMP = {
  // feeder occupations
  "Heating, Air Conditioning, and Refrigeration Mechanics and Installers":1060,
  "Solar Photovoltaic Installers":90,
- "Riggers":null,
+ "Riggers":45,                       // Lightcast 2025 (BLS not published)
  "Plumbers, Pipefitters, and Steamfitters":1260,
  "Maintenance and Repair Workers, General":5480,
  "Inspectors, Testers, Sorters, Samplers, and Weighers":2360,
- "Petroleum Pump System Operators, Refinery Operators, and Gaugers":null,
+ "Petroleum Pump System Operators, Refinery Operators, and Gaugers":53,   // Lightcast 2025 (BLS not published)
  "Septic Tank Servicers and Sewer Pipe Cleaners":140,
  "Machinists":390,
  "Construction Laborers":3010,
@@ -211,7 +213,7 @@ const EMP = {
  "Welders, Cutters, Solderers, and Brazers":1320,
  "Industrial Truck and Tractor Operators":11940,
  "Water and Wastewater Treatment Plant and System Operators":550,
- "Hazardous Materials Removal Workers":null,
+ "Hazardous Materials Removal Workers":147,   // Lightcast 2025 (BLS not published)
  "Farm Equipment Mechanics and Service Technicians":630,
  "Heavy and Tractor-Trailer Truck Drivers":15860,
  "Computer Numerically Controlled Tool Operators":400,
@@ -226,7 +228,7 @@ const EMP = {
  "Computer Numerically Controlled Tool Programmers":30,
  "Chemical Technicians":260,
  "First-Line Supervisors of Production and Operating Workers":2440,
- "Environmental Engineering Technologists and Technicians":null
+ "Environmental Engineering Technologists and Technicians":19   // Lightcast 2025 (BLS not published)
 };
 const fmtN = n => n==null ? null : n.toLocaleString('en-US');
 const empN = name => EMP[name]; // number or null/undefined
