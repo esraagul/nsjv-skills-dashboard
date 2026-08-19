@@ -314,26 +314,28 @@ function renderPack(){
   for(const q of [0.25,0.5,0.75,1]){ const r=(Rin+q*(Rout-Rin)).toFixed(1);
     rings+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d7dde3" stroke-width="1" stroke-dasharray="2 5"/>`; }
   let bub='';
-  const FS=8.2, LH=8.6, MAXCH=13, NFS=8.2, UFS=8.2, GAP=10, UGAP=8.6;
+  const MAXCH=13;
   for(const n of nodes){
     const sel = n.idx===fi, c = packCol(n.gap/t.total);
     const lines = wrapLabel(SHORT[n.name]||n.name, MAXCH, 3);
     const emp = empN(n.name);
     const hasEmp = emp!=null;
     const numStr = hasEmp ? fmtN(emp) : 'n/a';
-    const nameH = (lines.length-1)*LH;                          // span between first and last name baseline
-    const span = nameH + GAP + (hasEmp ? UGAP : 0);            // first name baseline -> last element baseline
-    const y0 = n.y - span/2 + 2;                                // first name baseline (block centered, shifted up for the count)
-    const yNum = y0 + nameH + GAP;                              // worker-count baseline, below the name (small gap)
-    const yUnit = yNum + UGAP;                                  // "workers" caption baseline
-    const label = lines.map((ln,i)=>`<tspan x="${n.x.toFixed(1)}" dy="${i===0?0:LH}">${esc(ln)}</tspan>`).join('');
+    const fs = 8.4 + (n.r-Rmin)/(Rmax-Rmin)*(13.5-8.4);         // label font grows with bubble size
+    const lh = fs*1.05, gapNC = fs*1.2, gapCU = fs*1.02, ufs = fs*0.9;
+    const nameH = (lines.length-1)*lh;                          // span between first and last name baseline
+    const span = nameH + gapNC + (hasEmp ? gapCU : 0);          // first name baseline -> last element baseline
+    const y0 = n.y - span/2 + fs*0.32;                          // first name baseline (block centered)
+    const yNum = y0 + nameH + gapNC;                            // worker-count baseline, below the name
+    const yUnit = yNum + gapCU;                                 // "workers" caption baseline
+    const label = lines.map((ln,i)=>`<tspan x="${n.x.toFixed(1)}" dy="${i===0?0:lh.toFixed(2)}">${esc(ln)}</tspan>`).join('');
     bub+=`<g class="pk" onclick="onFeeder(${n.idx})">
       <circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${n.r.toFixed(1)}" fill="${c}" fill-opacity="${sel?1:0.9}"
         stroke="${sel?'#20272c':'#ffffff'}" stroke-width="${sel?3:1.5}">
         <title>${esc(n.name)}${n.code?' ('+n.code+')':''} — gap ${n.gap}, ${t.total-n.gap} of ${t.total} transfer${emp==null?' · NSJV workforce not published':' · '+fmtN(emp)+' NSJV workers'}</title></circle>
-      <text x="${n.x.toFixed(1)}" y="${y0.toFixed(1)}" text-anchor="middle" font-size="${FS}" font-weight="600" fill="#fff" pointer-events="none">${label}</text>
-      <text x="${n.x.toFixed(1)}" y="${yNum.toFixed(1)}" text-anchor="middle" font-size="${NFS}" font-weight="700" fill="#fff" pointer-events="none">${esc(numStr)}</text>
-      ${hasEmp?`<text x="${n.x.toFixed(1)}" y="${yUnit.toFixed(1)}" text-anchor="middle" font-size="${UFS}" font-weight="600" fill="#fff" pointer-events="none">workers</text>`:''}
+      <text x="${n.x.toFixed(1)}" y="${y0.toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(2)}" font-weight="600" fill="#fff" pointer-events="none">${label}</text>
+      <text x="${n.x.toFixed(1)}" y="${yNum.toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(2)}" font-weight="700" fill="#fff" pointer-events="none">${esc(numStr)}</text>
+      ${hasEmp?`<text x="${n.x.toFixed(1)}" y="${yUnit.toFixed(1)}" text-anchor="middle" font-size="${ufs.toFixed(2)}" font-weight="600" fill="#fff" pointer-events="none">workers</text>`:''}
     </g>`;
   }
   const feederSum = t.feeders.reduce((s,f)=> s + (empN(f.name)||0), 0);
