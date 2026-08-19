@@ -279,31 +279,36 @@ function packCol(frac){ return frac<=0.10?'#1D9E75' : frac<=0.35?'#EF9F27' : fra
 
 function renderPack(){
   const t = DATA.targets[ti];
-  const W=1000,H=800,cx=500,cy=396,Rt=64,Rb=39,Rin=114,Rout=350,pad=5;
+  const W=1120,H=1000,cx=560,cy=500,Rin=140,Rout=400,pad=5,Rmin=36,Rmax=72;
   const maxGap = Math.max(1, ...t.feeders.map(f=>f.gap));
+  // bubble radius by workforce: area-based, floored/capped so big occupations stand out but small ones stay legible
+  const emps = t.feeders.map(f=>empN(f.name)).concat([empN(t.name)]).filter(v=>v!=null);
+  const wmin = emps.length?Math.min(...emps):0, wmax = emps.length?Math.max(...emps):1;
+  const rOf = w => (w==null||wmax===wmin) ? (Rmin+Rmax)/2 : Rmin + (Rmax-Rmin)*Math.sqrt((w-wmin)/(wmax-wmin));
+  const Rt = rOf(empN(t.name));                      // center (target) sized on the same scale
   const nodes = t.feeders.map((f,idx)=>{
-    const tr = Rin + (f.gap/maxGap)*(Rout-Rin);      // target radius by gap
+    const tr = Rin + (f.gap/maxGap)*(Rout-Rin);      // distance from center by gap
     const a = idx*2.399963;                          // golden-angle seed for even spread
-    return {idx, name:f.name, code:CODES[f.name]||'', gap:f.gap, tr,
+    return {idx, name:f.name, code:CODES[f.name]||'', gap:f.gap, r:rOf(empN(f.name)), tr,
             x:cx+Math.cos(a)*tr, y:cy+Math.sin(a)*tr};
   });
   // lightweight relaxation: pull each toward its gap-radius, push apart overlaps + off the center
-  for(let it=0; it<340; it++){
+  for(let it=0; it<440; it++){
     for(const n of nodes){
       const dx=n.x-cx, dy=n.y-cy, d=Math.hypot(dx,dy)||0.01, ang=Math.atan2(dy,dx);
-      const nr = d + (n.tr-d)*0.18;
+      const nr = d + (n.tr-d)*0.16;
       n.x=cx+Math.cos(ang)*nr; n.y=cy+Math.sin(ang)*nr;
     }
     for(let i=0;i<nodes.length;i++){
-      const A=nodes[i]; let dx=A.x-cx, dy=A.y-cy, d=Math.hypot(dx,dy)||0.01, min=Rt+Rb+pad;
+      const A=nodes[i]; let dx=A.x-cx, dy=A.y-cy, d=Math.hypot(dx,dy)||0.01, min=Rt+A.r+pad;
       if(d<min){ A.x=cx+dx/d*min; A.y=cy+dy/d*min; }
       for(let j=i+1;j<nodes.length;j++){
-        const B=nodes[j]; let ex=B.x-A.x, ey=B.y-A.y, dd=Math.hypot(ex,ey)||0.01, mn=Rb*2+pad;
+        const B=nodes[j]; let ex=B.x-A.x, ey=B.y-A.y, dd=Math.hypot(ex,ey)||0.01, mn=A.r+B.r+pad;
         if(dd<mn){ const p=(mn-dd)/2/dd; A.x-=ex*p; A.y-=ey*p; B.x+=ex*p; B.y+=ey*p; }
       }
     }
   }
-  for(const n of nodes){ n.x=Math.max(Rb+2,Math.min(W-Rb-2,n.x)); n.y=Math.max(Rb+2,Math.min(H-Rb-2,n.y)); }
+  for(const n of nodes){ n.x=Math.max(n.r+2,Math.min(W-n.r-2,n.x)); n.y=Math.max(n.r+2,Math.min(H-n.r-2,n.y)); }
 
   let rings='';
   for(const q of [0.25,0.5,0.75,1]){ const r=(Rin+q*(Rout-Rin)).toFixed(1);
@@ -323,7 +328,7 @@ function renderPack(){
     const yUnit = yNum + UGAP;                                  // "workers" caption baseline
     const label = lines.map((ln,i)=>`<tspan x="${n.x.toFixed(1)}" dy="${i===0?0:LH}">${esc(ln)}</tspan>`).join('');
     bub+=`<g class="pk" onclick="onFeeder(${n.idx})">
-      <circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${Rb}" fill="${c}" fill-opacity="${sel?1:0.9}"
+      <circle cx="${n.x.toFixed(1)}" cy="${n.y.toFixed(1)}" r="${n.r.toFixed(1)}" fill="${c}" fill-opacity="${sel?1:0.9}"
         stroke="${sel?'#20272c':'#ffffff'}" stroke-width="${sel?3:1.5}">
         <title>${esc(n.name)}${n.code?' ('+n.code+')':''} — gap ${n.gap}, ${t.total-n.gap} of ${t.total} transfer${emp==null?' · NSJV workforce not published':' · '+fmtN(emp)+' NSJV workers'}</title></circle>
       <text x="${n.x.toFixed(1)}" y="${y0.toFixed(1)}" text-anchor="middle" font-size="${FS}" font-weight="600" fill="#fff" pointer-events="none">${label}</text>
@@ -333,19 +338,22 @@ function renderPack(){
   }
   const feederSum = t.feeders.reduce((s,f)=> s + (empN(f.name)||0), 0);
   const ts = TSHORT[t.code]||t.name;
-  const center = `<circle cx="${cx}" cy="${cy}" r="${Rt}" fill="#0F6E56"><title>${esc(t.name)} — ${fmtN(empN(t.name))} NSJV workers</title></circle>
-    <text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">${esc(ts)}</text>`;
+  const tEmp = empN(t.name);
+  const center = `<circle cx="${cx}" cy="${cy}" r="${Rt.toFixed(1)}" fill="#0F6E56"><title>${esc(t.name)} — ${fmtN(tEmp)} NSJV workers</title></circle>
+    <text x="${cx}" y="${(cy-6).toFixed(1)}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#fff">${esc(ts)}</text>
+    <text x="${cx}" y="${(cy+8).toFixed(1)}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">${esc(fmtN(tEmp))}</text>
+    <text x="${cx}" y="${(cy+18).toFixed(1)}" text-anchor="middle" font-size="9" fill="#fff" fill-opacity="0.9">workers</text>`;
 
   document.getElementById('packcard').innerHTML = `
     <div class="pktitle">Feeder cluster</div>
-    <div class="pkhead">The closer a bubble sits to <b>${esc(t.name)}</b>, the smaller its training gap. ${t.feeders.length} feeders, employing about <b>${fmtN(feederSum)}</b> NSJV workers combined (published counts) versus <b>${fmtN(empN(t.name))}</b> in the target role.</div>
+    <div class="pkhead">Each bubble is an occupation, sized by its NSJV workforce; the closer it sits to <b>${esc(t.name)}</b> at the center, the smaller its training gap. ${t.feeders.length} feeders, employing about <b>${fmtN(feederSum)}</b> NSJV workers combined versus <b>${fmtN(tEmp)}</b> in the target role.</div>
     <div class="pklegend">
       <span>best fit</span>
       <span class="lg"><i style="background:#1D9E75"></i></span>
       <span class="lg"><i style="background:#EF9F27"></i></span>
       <span class="lg"><i style="background:#D85A30"></i></span>
       <span class="lg"><i style="background:#E24B4A"></i></span>
-      <span>more to learn &nbsp;·&nbsp; bold number = NSJV workers &nbsp;·&nbsp; click a bubble to load it above &nbsp;·&nbsp; hover for full name &amp; SOC code</span>
+      <span>more to learn &nbsp;·&nbsp; bubble size = NSJV workforce &nbsp;·&nbsp; click a bubble to load it above &nbsp;·&nbsp; hover for full name &amp; SOC code</span>
     </div>
     <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Feeder occupation cluster for ${esc(t.name)}">
       ${rings}${bub}${center}
